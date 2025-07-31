@@ -7,6 +7,86 @@ Both under MIT-license.
 
 namespace ColorSensor {
 
+    function rgb2color(color_r: number, color_g: number, color_b: number): Color {
+        let R = color_r / 255;
+        let G = color_g / 255;
+        let B = color_b / 255;
+        let max = -1
+        let min = -1
+        let hue = 0
+
+        if (R > G && R > B) max = R
+        if (G > R && G > B) max = G
+        if (B > R && B > G) max = B
+        if (R < G && R < B) min = R
+        if (G < R && G < B) min = G
+        if (B < R && B < G) min = B
+
+        if (R == max) hue = (0 + (G - B) / (max - min)) * 60
+        if (G == max) hue = (2 + (B - R) / (max - min)) * 60
+        if (B == max) hue = (4 + (R - G) / (max - min)) * 60
+
+        if (hue < 0) hue += 360
+
+        // translate hue to color
+
+        // MEASURED VALUES:
+        // ================
+        // light yellow = 140, 165
+        // yellow = 64, 59
+        // dark yellow = 44, 44
+        // orange = 3, 3
+        // light green = 180, 186
+        // green = 154, 150
+        // dark green = 154, 149
+        // very dark green = 168, 166
+        // licht blue = 196, 200
+        // blue = 211, 211
+        // indigo = 220, 220
+        // very dark blue = 218, 218
+        // light purple = 218, 220
+        // purple = 230, 260
+        // light pink = 264, 264
+        // dark pink = 279, 279
+        // red = 347, 348
+        // very dark red = 325, 325
+        // brown = 7, 8
+        // dark brown = 269, 272
+        // grey = 214, 213
+        // black = 214, 214
+
+        //  3 = orange
+        //  7 = brown
+        // 44 = dark yellow
+        // 62 = yellow
+        // 152 = green
+        // 167 = dark green
+        // 182 = light green
+        // 198 = light blue
+        // 211 = blue
+        // 214 = grey, black
+        // 219 = indigo, light purple
+        // 240 = purple
+        // 264 = pink
+        // 279 = magenta
+        // 325 = dark red
+        // 348 = red
+
+        if (hue == 0) return Color.White
+        if (hue < 5) return Color.Orange
+        if (hue < 30) return Color.Brown
+        if (hue < 100) return Color.Yellow
+        if (hue < 190) return Color.Green
+        if (hue < 206) return Color.Cyan
+        if (hue < 213) return Color.Blue
+        if (hue < 217) return Color.Black
+        if (hue < 230) return Color.Indigo
+        if (hue < 255) return Color.Purple
+        if (hue < 272) return Color.Pink
+        if (hue < 300) return Color.Magenta
+        return Color.Red
+    }
+
     const APDS9960_ADDR = 0x39
     const APDS9960_ENABLE = 0x80
     const APDS9960_ATIME = 0x81
@@ -137,28 +217,6 @@ namespace ColorSensor {
         g = g * 255 / avg;
         b = b * 255 / avg;
 
-        // translate rgb to hue
-        let hue = rgb2hsl(r, g, b)
-        if (color_new_init == true && hue >= 180 && hue <= 151 && temp_c >= 6000 && (temp_b - temp_g) < 1500 || (temp_r > 4096 && temp_g > 4096 && temp_b > 4096)) {
-            temp_c = Math.map(temp_c, 0, 15000, 0, 13000);
-            hue = 180 + (13000 - temp_c) / 1500.0;
-        }
-
-        // translate hue to color
-        if (hue > 330 || hue < 15)
-            return Color.Red
-        if (hue > 115 && 180 > hue)
-            return Color.Green
-        if (hue > 215 && 270 > hue)
-            return Color.Blue
-        if (hue > 190 && 215 > hue)
-            return Color.Cyan
-        if (hue > 260 && 330 > hue)
-            return Color.Magenta
-        if (hue > 30 && 115 > hue)
-            return Color.Yellow
-        if (hue >= 180 && 190 > hue)
-            return Color.White
-        return Color.Black
+        return rgb2color(r, g, b)
     }
 }
